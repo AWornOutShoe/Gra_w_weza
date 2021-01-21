@@ -100,14 +100,15 @@ int main()
 		FILE* f;
 		f = fopen("C:\\temp\\tabela_wynikow.txt", "a");
 		f = fopen("C:\\temp\\tabela_wynikow.txt", "r");
-		do
+		c = fgetc(f);
+		while (c != EOF)														//zliczenie ilości wyników w tablicy
 		{
-			c = fgetc(f);														//zliczenie ilości wyników w tablicy
+			c = fgetc(f);
 			if (c == ' ')
 			{
 				w++;
 			}
-		} while (c != EOF);
+		}
 		fclose(f);
 		if (w > 0)																//wypisanie wyników gdy plik jest zapisany
 		{
