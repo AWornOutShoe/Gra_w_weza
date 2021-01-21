@@ -1,0 +1,337 @@
+#define _CRT_SECURE_NO_WARNINGS
+#include <windows.h>
+#include <stdlib.h>
+#include <stdio.h>
+#include <conio.h>
+#include <time.h>
+#include "winbgi2.h"
+
+int initPos(int*, int*, int, int);
+int display(int*, int*, int, int, int*, int*, int*);
+int move(int*, int*, int, int, int*);
+int collideWall(int*, int*, int);
+int collideSnek(int*, int*, int);
+int appleSpawn(int*, int*, int*, int*, int, int, int*);
+int collideApple(int*, int*, int*, int*, int, int*);
+
+int main()
+{
+	int i, o;
+	system("cls");
+	printf("###############################\n"
+		"###############################\n"
+		"######  Menu gry w weza  ######\n"
+		"###############################\n"
+		"###############################\n\n"
+		"Prosze wybrac jedna z dostepnych opcji:\n\n"
+		"Nowa gra [1]\n"
+		"Tabela wynikow [2]\n"
+		"Usuniecie zawartosci tabeli wynikow [3]\n"
+		"Zakonczenie programu [4]\n\n");
+	scanf("%d", &o);
+	srand(time(NULL));
+	if (o == 1)
+	{
+		int x[101], y[101];
+		int xa, ya, n = 10, curl = 3, maxl = 100, prevm = 75, isApple = 0, pts = 0;
+		system("cls");
+		printf("Wybrano nowa gre.");
+		initPos(x, y, n, curl);
+		graphics(1008, 1012);
+		display(x, y, n, curl, &xa, &ya, &isApple);
+		for (i = 0; i < 10000; i++)
+		{
+			if (curl < maxl)
+			{
+				if (collideWall(x, y, curl) == 1)
+				{
+					system("cls");
+					printf("Zderzyles sie ze sciana smutnej rzeczywistosci swiata realnego! :(\n"
+						"Liczba zdobytych punktow - %d\n", pts);
+					FILE* f;
+					f = fopen("C:\\temp\\tabela_wynikow.txt", "a");
+					fprintf(f, "%d ", pts);
+					fclose(f);
+					return 0;
+				}
+				if (collideSnek(x, y, curl) == 1)
+				{
+					system("cls");
+					printf("No step on snek! :(\n"
+						"Liczba zdobytych punktow - %d\n", pts);
+					FILE* f;
+					f = fopen("C:\\temp\\tabela_wynikow.txt", "a");
+					fprintf(f, "%d ", pts);
+					fclose(f);
+					return 0;
+				}
+				if (collideApple(x, y, &xa, &ya, curl, &isApple) == 1)
+				{
+					x[curl] = x[curl - 1];
+					y[curl] = y[curl - 1];
+					move(x, y, n, curl, &prevm);
+					curl++;
+					pts++;
+				}
+				else
+				{
+					move(x, y, n, curl, &prevm);
+				}
+				appleSpawn(x, y, &xa, &ya, curl, n, &isApple);
+				animate(100);
+				clear();
+				display(x, y, n, curl, &xa, &ya, &isApple);
+			}
+			else
+			{
+				system("cls");
+				printf("Gratulacje, udalo Ci sie stworzyc mozliwie najdluzszego weza! :)\n");
+				return 0;
+			}
+		}
+	}
+	if (o == 2)
+	{
+		system("cls");
+		printf("Wybrano tabele wynikow.\n\n");
+		int w = 0, temp, j;
+		int* wyn;
+		char c;
+		FILE* f;
+		f = fopen("C:\\temp\\tabela_wynikow.txt", "a");
+		f = fopen("C:\\temp\\tabela_wynikow.txt", "r");
+		do
+		{
+			c = fgetc(f);
+			if (c == ' ')
+			{
+				w++;
+			}
+		} while (c != EOF);
+		fclose(f);
+		if (w > 0)
+		{
+			f = fopen("C:\\temp\\tabela_wynikow.txt", "r");
+			wyn = (int*)malloc(w * sizeof(int));
+			for (i = 0; i < w; i++)
+			{
+				fscanf(f, "%d", &wyn[i]);
+				printf("%d podejscie - %d Pkt.\n", i + 1, wyn[i]);
+			}
+			fclose(f);
+			for (i = 1; i < w; i++)
+			{
+				for (j = 0; j < i; j++)
+				{
+					if (wyn[i] > wyn[j])
+					{
+						temp = wyn[i];
+						wyn[i] = wyn[j];
+						wyn[j] = temp;
+					}
+				}
+			}
+			printf("\nNajlepszy wynik: %d Pkt.\n\n", wyn[0]);
+		}
+		else
+			printf("Nie zapisano jeszcze rzadnych wynikow.\n\n");
+		printf("Nacisnij dowolny klawisz aby wrocic do menu glownego.\n");
+		while (!_kbhit())
+			Sleep(0);
+		main();
+	}
+	if (o == 3)
+	{
+		system("cls");
+		FILE* f;
+		f = fopen("C:\\temp\\tabela_wynikow.txt", "w");
+		fprintf(f, "");
+		fclose(f);
+		printf("Usunieto zawartosc tablicy wynikow.\n\nNacisnij dowolny klawisz aby wrocic do menu glownego.\n");
+		while (!_kbhit())
+			Sleep(0);
+		main();
+	}
+	if (o == 4)
+	{
+		system("cls");
+		printf("Do widzenia.\n");
+		return 0;
+	}
+	if (o != 1 && o != 2 && o != 3 && o != 4)
+	{
+		system("cls");
+		printf("Wybrano nieistniejaca opcje.\n");
+	}
+	return(0);
+}
+
+int initPos(int* x, int* y, int, int curl)
+{
+	int i;
+	for (i = 0; i < curl; i++)
+	{
+		x[i] = 550 + i * 100;
+		y[i] = 550;
+	}
+	return 0;
+}
+
+int display(int* x, int* y, int n, int curl, int* xa, int* ya, int* isApple)
+{
+	int i;
+	for (i = 0; i < 10; i++)		//linie pomocnicze
+	{
+		line(0, i * 100, 1000, i * 100);
+		line(i * 100, 0, i * 100, 1000);
+	}
+	for (i = 0; i < curl; i++)
+	{
+		circle(x[i], y[i], 50);
+	}
+	if (collideApple(x, y, xa, ya, curl, isApple) != 1)
+	{
+		circle(50 + *xa * 100, 50 + *ya * 100, 30);
+	}
+	return 0;
+}
+
+int move(int* x, int* y, int n, int curl, int* prevm)
+{
+	time_t delay = 1;
+	time_t start = time(NULL);
+	int ch, ch1, i;
+	while (time(NULL) - start < delay && !_kbhit());
+	{
+		if (_kbhit())
+		{
+			ch = _getch();
+		}
+	}
+	if (time(NULL) - start < delay && (ch == 224 || ch == 0))
+	{
+		ch1 = _getch();
+	}
+	else
+		ch1 = *prevm;
+	if (ch1 == 72)		//gora
+	{
+		if (*prevm == 80)
+		{
+			return 0;
+		}
+		for (i = curl; i > 1; i--)
+		{
+			x[i - 1] = x[i - 2];
+			y[i - 1] = y[i - 2];
+		}
+		y[0] -= 100;
+	}
+	if (ch1 == 80)		//dol
+	{
+		if (*prevm == 72)
+		{
+			return 0;
+		}
+		for (i = curl; i > 1; i--)
+		{
+			x[i - 1] = x[i - 2];
+			y[i - 1] = y[i - 2];
+		}
+		y[0] += 100;
+	}
+	if (ch1 == 75)		//lewo
+	{
+		if (*prevm == 77)
+		{
+			return 0;
+		}
+		for (i = curl; i > 1; i--)
+		{
+			x[i - 1] = x[i - 2];
+			y[i - 1] = y[i - 2];
+		}
+		x[0] -= 100;
+	}
+	if (ch1 == 77)		//prawo
+	{
+		if (*prevm == 75)
+		{
+			return 0;
+		}
+		for (i = curl; i > 1; i--)
+		{
+			x[i - 1] = x[i - 2];
+			y[i - 1] = y[i - 2];
+		}
+		x[0] += 100;
+	}
+	*prevm = ch1;
+	return 0;
+}
+
+int collideWall(int* x, int* y, int curl)
+{
+	int i;
+	for (i = 0; i < curl; i++)
+	{
+		if (x[i] < 50 || x[i]>950 || y[i] < 50 || y[i]>950)
+		{
+			return 1;
+		}
+	}
+	return 0;
+}
+
+int collideSnek(int* x, int* y, int curl)
+{
+	int i, j;
+	for (i = 0; i < curl; i++)
+	{
+		for (j = i + 1; j < curl; j++)
+		{
+			if (x[i] == x[j] && y[i] == y[j])
+			{
+				return 1;
+			}
+		}
+	}
+	return 0;
+}
+
+int appleSpawn(int* x, int* y, int* xa, int* ya, int curl, int n, int* isApple)
+{
+	int i, j = 1;
+	if (*isApple == 0)
+	{
+		while (j > 0)
+		{
+			j = 0;
+			*xa = rand() % n;
+			*ya = rand() % n;
+			for (i = 0; i < curl; i++)
+			{
+				if (50 + *xa * 100 == x[i] && 50 + *ya * 100 == y[i])
+				{
+					j++;
+				}
+			}
+		}
+		*isApple = 1;
+	}
+	return 0;
+}
+
+int collideApple(int* x, int* y, int* xa, int* ya, int curl, int* isApple)
+{
+	int i;
+	for (i = 0; i < curl; i++)
+	{
+		if (50 + *xa * 100 == x[i] && 50 + *ya * 100 == y[i])
+		{
+			*isApple = 0;
+			return 1;
+		}
+	}
+	return 0;
+}
