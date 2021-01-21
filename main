@@ -7,7 +7,7 @@
 #include "winbgi2.h"
 
 int initPos(int*, int*, int);								//funkcja wyznaczająca początkowe położenie kolejnych części węża
-int display(int*, int*, int, int*, int*, int*);				//funkcja wyświetlająca elementy graficzne
+int display(int*, int*, int, int*, int*, int*, int*);				//funkcja wyświetlająca elementy graficzne
 int move(int*, int*, int, int*);							//funkcja zmieniająca współrzędne węża
 int collideWall(int*, int*, int);							//funkcja sprawdzająca czy wąż znajduje się poza planszą
 int collideSnek(int*, int*, int);							//funkcja sprawdzająca czy wąż zderzył się ze sobą
@@ -33,12 +33,23 @@ int main()
 	if (o == 1)																	//włączenie gry
 	{
 		int x[101], y[101];														//x,y - tablice przechowujące współrzędne kolejnych części węża
-		int xa, ya, curl = 3, maxl = 100, prevm = 75, isApple = 0, pts = 0;		//xa,ya - poz. jabłka	|	curl - obecna długość węża	|	maxl - maksymalna długość węża	|	prevm - kod ascii poprzedniego ruchu	|	isApple - funkcja sprawdzająca czy na planszy znajduje się jabłko	|	pts - ilość punktów
+		int xa, ya, curl = 3, maxl = 100, prevm = 75, isApple = 0, pts = 0, lines;		//xa,ya - poz. jabłka	|	curl - obecna długość węża	|	maxl - maksymalna długość węża	|	prevm - kod ascii poprzedniego ruchu	|	isApple - funkcja sprawdzająca czy na planszy znajduje się jabłko	|	pts - ilość punktów
 		system("cls");
-		printf("Wybrano nowa gre.");
+		printf("Wybrano nowa gre.\n"
+			"Gra z liniami pomocniczymi [1]\n"
+			"Gra bez lini pomocniczych [2]\n");
+		scanf("%d", &lines);
+		while (lines != 1 && lines != 2)
+		{
+			system("cls");
+			printf("Prosze wybrac jedna z dostepnych opcji.\n"
+				"Gra z liniami pomocniczymi [1]\n"
+				"Gra bez lini pomocniczych [2]\n");
+			scanf("%d", &lines);
+		}
 		initPos(x, y, curl);
 		graphics(1008, 1012);
-		display(x, y, curl, &xa, &ya, &isApple);
+		display(x, y, curl, &xa, &ya, &isApple, &lines);
 		for (i = 0; i < 10000; i++)
 		{
 			if (curl < maxl)
@@ -80,7 +91,7 @@ int main()
 				appleSpawn(x, y, &xa, &ya, curl, &isApple);
 				animate(100);
 				clear();
-				display(x, y, curl, &xa, &ya, &isApple);
+				display(x, y, curl, &xa, &ya, &isApple, &lines);
 			}
 			else
 			{
@@ -183,13 +194,16 @@ int initPos(int* x, int* y, int curl)
 	return 0;
 }
 
-int display(int* x, int* y, int curl, int* xa, int* ya, int* isApple)
+int display(int* x, int* y, int curl, int* xa, int* ya, int* isApple, int* lines)
 {
 	int i;
-	for (i = 0; i < 10; i++)		//linie pomocnicze
+	if (*lines == 1)
 	{
-		line(0, i * 100, 1000, i * 100);
-		line(i * 100, 0, i * 100, 1000);
+		for (i = 0; i < 10; i++)		//linie pomocnicze
+		{
+			line(0, i * 100, 1000, i * 100);
+			line(i * 100, 0, i * 100, 1000);
+		}
 	}
 	for (i = 0; i < curl; i++)
 	{
