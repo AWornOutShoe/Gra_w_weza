@@ -46,7 +46,7 @@ int main()
 				if (collideWall(x, y, curl) == 1)
 				{
 					system("cls");
-					printf("Zderzyles sie ze sciana smutnej rzeczywistosci swiata realnego! :(\n"
+					printf("Zderzyles sie ze sciana smutnej rzeczywistosci swiata realnego! :(\n\n"
 						"Liczba zdobytych punktow - %d\n", pts);
 					FILE* f;
 					f = fopen("C:\\temp\\tabela_wynikow.txt", "a");
@@ -57,7 +57,7 @@ int main()
 				if (collideSnek(x, y, curl) == 1)
 				{
 					system("cls");
-					printf("No step on snek! :(\n"
+					printf("No step on snek! :(\n\n"
 						"Liczba zdobytych punktow - %d\n", pts);
 					FILE* f;
 					f = fopen("C:\\temp\\tabela_wynikow.txt", "a");
