@@ -35,14 +35,14 @@ int main()
 		int x[101], y[101];														//x,y - tablice przechowujące współrzędne kolejnych części węża
 		int xa, ya, curl = 3, maxl = 100, prevm = 75, isApple = 0, pts = 0, lines;		//xa,ya - poz. jabłka	|	curl - obecna długość węża	|	maxl - maksymalna długość węża	|	prevm - kod ascii poprzedniego ruchu	|	isApple - funkcja sprawdzająca czy na planszy znajduje się jabłko	|	pts - ilość punktów
 		system("cls");
-		printf("Wybrano nowa gre.\n"
+		printf("Wybrano nowa gre.\n\n"
 			"Gra z liniami pomocniczymi [1]\n"
 			"Gra bez lini pomocniczych [2]\n");
 		scanf("%d", &lines);
 		while (lines != 1 && lines != 2)
 		{
 			system("cls");
-			printf("Prosze wybrac jedna z dostepnych opcji.\n"
+			printf("Prosze wybrac jedna z dostepnych opcji.\n\n"
 				"Gra z liniami pomocniczymi [1]\n"
 				"Gra bez lini pomocniczych [2]\n");
 			scanf("%d", &lines);
