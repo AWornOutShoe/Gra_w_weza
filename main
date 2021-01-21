@@ -135,7 +135,7 @@ int main()
 		}
 		else																	//wypisanie, że plik jest pusty gdy nie jest zapisany
 		{
-			printf("Nie zapisano jeszcze rzadnych wynikow.\n\n");
+			printf("Nie zapisano jeszcze zadnych wynikow.\n\n");
 		}
 		printf("Nacisnij dowolny klawisz aby wrocic do menu glownego.\n");
 		while (!_kbhit())
