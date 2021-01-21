@@ -6,13 +6,13 @@
 #include <time.h>
 #include "winbgi2.h"
 
-int initPos(int*, int*, int, int);
-int display(int*, int*, int, int, int*, int*, int*);
-int move(int*, int*, int, int, int*);
-int collideWall(int*, int*, int);
-int collideSnek(int*, int*, int);
-int appleSpawn(int*, int*, int*, int*, int, int, int*);
-int collideApple(int*, int*, int*, int*, int, int*);
+int initPos(int*, int*, int);								//funkcja wyznaczająca początkowe położenie kolejnych części węża
+int display(int*, int*, int, int*, int*, int*);				//funkcja wyświetlająca elementy graficzne
+int move(int*, int*, int, int*);							//funkcja zmieniająca współrzędne węża
+int collideWall(int*, int*, int);							//funkcja sprawdzająca czy wąż znajduje się poza planszą
+int collideSnek(int*, int*, int);							//funkcja sprawdzająca czy wąż zderzył się ze sobą
+int appleSpawn(int*, int*, int*, int*, int, int*);			//funkcja losująca pozycję jabłka
+int collideApple(int*, int*, int*, int*, int, int*);		//funkcja sprawdzająca czy wąż zjadł jabłko
 
 int main()
 {
@@ -30,15 +30,15 @@ int main()
 		"Zakonczenie programu [4]\n\n");
 	scanf("%d", &o);
 	srand(time(NULL));
-	if (o == 1)
+	if (o == 1)																	//włączenie gry
 	{
-		int x[101], y[101];
-		int xa, ya, n = 10, curl = 3, maxl = 100, prevm = 75, isApple = 0, pts = 0;
+		int x[101], y[101];														//x,y - tablice przechowujące współrzędne kolejnych części węża
+		int xa, ya, curl = 3, maxl = 100, prevm = 75, isApple = 0, pts = 0;		//xa,ya - poz. jabłka	|	curl - obecna długość węża	|	maxl - maksymalna długość węża	|	prevm - kod ascii poprzedniego ruchu	|	isApple - funkcja sprawdzająca czy na planszy znajduje się jabłko	|	pts - ilość punktów
 		system("cls");
 		printf("Wybrano nowa gre.");
-		initPos(x, y, n, curl);
+		initPos(x, y, curl);
 		graphics(1008, 1012);
-		display(x, y, n, curl, &xa, &ya, &isApple);
+		display(x, y, curl, &xa, &ya, &isApple);
 		for (i = 0; i < 10000; i++)
 		{
 			if (curl < maxl)
@@ -50,7 +50,7 @@ int main()
 						"Liczba zdobytych punktow - %d\n", pts);
 					FILE* f;
 					f = fopen("C:\\temp\\tabela_wynikow.txt", "a");
-					fprintf(f, "%d ", pts);
+					fprintf(f, "%d ", pts);										//zapisanie zdobytego wyniku do pliku
 					fclose(f);
 					return 0;
 				}
@@ -61,7 +61,7 @@ int main()
 						"Liczba zdobytych punktow - %d\n", pts);
 					FILE* f;
 					f = fopen("C:\\temp\\tabela_wynikow.txt", "a");
-					fprintf(f, "%d ", pts);
+					fprintf(f, "%d ", pts);										//zapisanie zdobytego wyniku do pliku
 					fclose(f);
 					return 0;
 				}
@@ -69,18 +69,18 @@ int main()
 				{
 					x[curl] = x[curl - 1];
 					y[curl] = y[curl - 1];
-					move(x, y, n, curl, &prevm);
+					move(x, y, curl, &prevm);
 					curl++;
 					pts++;
 				}
 				else
 				{
-					move(x, y, n, curl, &prevm);
+					move(x, y, curl, &prevm);
 				}
-				appleSpawn(x, y, &xa, &ya, curl, n, &isApple);
+				appleSpawn(x, y, &xa, &ya, curl, &isApple);
 				animate(100);
 				clear();
-				display(x, y, n, curl, &xa, &ya, &isApple);
+				display(x, y, curl, &xa, &ya, &isApple);
 			}
 			else
 			{
@@ -90,7 +90,7 @@ int main()
 			}
 		}
 	}
-	if (o == 2)
+	if (o == 2)																	//wybranie tabeli wyników
 	{
 		system("cls");
 		printf("Wybrano tabele wynikow.\n\n");
@@ -102,14 +102,14 @@ int main()
 		f = fopen("C:\\temp\\tabela_wynikow.txt", "r");
 		do
 		{
-			c = fgetc(f);
+			c = fgetc(f);														//zliczenie ilości wyników w tablicy
 			if (c == ' ')
 			{
 				w++;
 			}
 		} while (c != EOF);
 		fclose(f);
-		if (w > 0)
+		if (w > 0)																//wypisanie wyników gdy plik jest zapisany
 		{
 			f = fopen("C:\\temp\\tabela_wynikow.txt", "r");
 			wyn = (int*)malloc(w * sizeof(int));
@@ -133,14 +133,16 @@ int main()
 			}
 			printf("\nNajlepszy wynik: %d Pkt.\n\n", wyn[0]);
 		}
-		else
+		else																	//wypisanie, że plik jest pusty gdy nie jest zapisany
+		{
 			printf("Nie zapisano jeszcze rzadnych wynikow.\n\n");
+		}
 		printf("Nacisnij dowolny klawisz aby wrocic do menu glownego.\n");
 		while (!_kbhit())
 			Sleep(0);
 		main();
 	}
-	if (o == 3)
+	if (o == 3)																	//czyszczenie zawartości tablicy wyników
 	{
 		system("cls");
 		FILE* f;
@@ -152,13 +154,13 @@ int main()
 			Sleep(0);
 		main();
 	}
-	if (o == 4)
+	if (o == 4)																	//zakończenie programu
 	{
 		system("cls");
 		printf("Do widzenia.\n");
 		return 0;
 	}
-	if (o != 1 && o != 2 && o != 3 && o != 4)
+	if (o != 1 && o != 2 && o != 3 && o != 4)									//wypisanie komunikatu o wybraniu nieistniejącej opcji
 	{
 		system("cls");
 		printf("Wybrano nieistniejaca opcje.\n");
@@ -166,7 +168,7 @@ int main()
 	return(0);
 }
 
-int initPos(int* x, int* y, int, int curl)
+int initPos(int* x, int* y, int curl)
 {
 	int i;
 	for (i = 0; i < curl; i++)
@@ -177,7 +179,7 @@ int initPos(int* x, int* y, int, int curl)
 	return 0;
 }
 
-int display(int* x, int* y, int n, int curl, int* xa, int* ya, int* isApple)
+int display(int* x, int* y, int curl, int* xa, int* ya, int* isApple)
 {
 	int i;
 	for (i = 0; i < 10; i++)		//linie pomocnicze
@@ -196,7 +198,7 @@ int display(int* x, int* y, int n, int curl, int* xa, int* ya, int* isApple)
 	return 0;
 }
 
-int move(int* x, int* y, int n, int curl, int* prevm)
+int move(int* x, int* y, int curl, int* prevm)
 {
 	time_t delay = 1;
 	time_t start = time(NULL);
@@ -299,7 +301,7 @@ int collideSnek(int* x, int* y, int curl)
 	return 0;
 }
 
-int appleSpawn(int* x, int* y, int* xa, int* ya, int curl, int n, int* isApple)
+int appleSpawn(int* x, int* y, int* xa, int* ya, int curl, int* isApple)
 {
 	int i, j = 1;
 	if (*isApple == 0)
@@ -307,8 +309,8 @@ int appleSpawn(int* x, int* y, int* xa, int* ya, int curl, int n, int* isApple)
 		while (j > 0)
 		{
 			j = 0;
-			*xa = rand() % n;
-			*ya = rand() % n;
+			*xa = rand() % 10;
+			*ya = rand() % 10;
 			for (i = 0; i < curl; i++)
 			{
 				if (50 + *xa * 100 == x[i] && 50 + *ya * 100 == y[i])
